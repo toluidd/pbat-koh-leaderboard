@@ -3,7 +3,7 @@ import pandas as pd
 import streamlit as st
 
 # ---------------------------------------------------------
-# 1. PAGE CONFIGURATION & HIGH-CONTRAST APC THEMING
+# 1. PAGE CONFIGURATION & FORCE LIGHT/HIGH-CONTRAST THEMING
 # ---------------------------------------------------------
 st.set_page_config(
     page_title="PBAT–KOH 2027 APC Campaign Leaderboards",
@@ -11,21 +11,27 @@ st.set_page_config(
     layout="wide",
 )
 
+# Comprehensive CSS override to lock light backgrounds and dark text on ALL devices/themes
 st.markdown(
     """
     <style>
-    /* Global App Background */
-    .stApp {
-        background-color: #F4F6F9;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    /* Force main app background */
+    .stApp, [data-testid="stAppViewContainer"], .main {
+        background-color: #F4F6F9 !important;
+        color: #111111 !important;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    }
+
+    /* Force text colors universally */
+    h1, h2, h3, h4, h5, h6, p, span, label, div {
+        color: #111111 !important;
     }
     
-    /* Header Banner */
+    /* Header Banner Styling */
     .campaign-header {
-        background: linear-gradient(135deg, #008751 0%, #005A36 50%, #0A192F 100%);
+        background: linear-gradient(135deg, #008751 0%, #005A36 50%, #0A192F 100%) !important;
         padding: 2.2rem;
         border-radius: 14px;
-        color: #FFFFFF !important;
         text-align: center;
         margin-bottom: 2rem;
         box-shadow: 0 6px 18px rgba(0,0,0,0.12);
@@ -33,40 +39,44 @@ st.markdown(
     }
     .campaign-header h1 {
         color: #FFFFFF !important;
-        font-size: 2.4rem;
-        font-weight: 800;
+        font-size: 2.3rem !important;
+        font-weight: 800 !important;
         margin-bottom: 0.2rem;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
     .campaign-header h3 {
         color: #FFD700 !important;
-        font-weight: 700;
-        font-size: 1.25rem;
+        font-weight: 700 !important;
+        font-size: 1.25rem !important;
         margin-top: 0;
     }
-    
-    /* Metric Cards - High Contrast */
-    div[data-testid="stMetric"] {
-        background-color: #FFFFFF;
-        border-radius: 10px;
-        padding: 16px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-        border-left: 6px solid #008751;
+    .campaign-header p {
+        color: #FFFFFF !important;
+        font-size: 1.1rem !important;
     }
-    div[data-testid="stMetricLabel"] {
+    
+    /* Metric Cards - Lock white background and high contrast text */
+    div[data-testid="stMetric"] {
+        background-color: #FFFFFF !important;
+        border-radius: 10px !important;
+        padding: 16px !important;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08) !important;
+        border-left: 6px solid #008751 !important;
+    }
+    div[data-testid="stMetricLabel"] label, div[data-testid="stMetricLabel"] p {
         color: #333333 !important;
         font-weight: 700 !important;
         font-size: 0.95rem !important;
     }
-    div[data-testid="stMetricValue"] {
+    div[data-testid="stMetricValue"] div {
         color: #008751 !important;
         font-weight: 800 !important;
     }
 
     /* Podium Card Styling */
     .podium-card {
-        background-color: #FFFFFF;
+        background-color: #FFFFFF !important;
         border-radius: 12px;
         padding: 20px;
         text-align: center;
@@ -76,32 +86,46 @@ st.markdown(
     }
     .podium-gold {
         border: 3px solid #FFD700 !important;
-        background: linear-gradient(180deg, #FFFDF0 0%, #FFFFFF 100%);
+        background: linear-gradient(180deg, #FFFDF0 0%, #FFFFFF 100%) !important;
     }
     .podium-silver {
         border: 3px solid #C0C0C0 !important;
-        background: linear-gradient(180deg, #F8F9FA 0%, #FFFFFF 100%);
+        background: linear-gradient(180deg, #F8F9FA 0%, #FFFFFF 100%) !important;
     }
     .podium-bronze {
         border: 3px solid #CD7F32 !important;
-        background: linear-gradient(180deg, #FFF8F2 0%, #FFFFFF 100%);
+        background: linear-gradient(180deg, #FFF8F2 0%, #FFFFFF 100%) !important;
     }
     .podium-title {
         font-size: 1.15rem;
         font-weight: 800;
-        color: #0A192F;
+        color: #0A192F !important;
         margin-bottom: 4px;
     }
     .podium-sub {
         font-size: 0.9rem;
-        color: #555555;
+        color: #444444 !important;
         margin-bottom: 10px;
         font-weight: 600;
     }
     .podium-score {
         font-size: 1.4rem;
         font-weight: 800;
-        color: #008751;
+        color: #008751 !important;
+    }
+
+    /* Dataframe cell visibility overrides */
+    [data-testid="stDataFrame"] {
+        background-color: #FFFFFF !important;
+        border-radius: 10px;
+        padding: 8px;
+    }
+    
+    /* Search box input contrast */
+    .stTextInput input {
+        background-color: #FFFFFF !important;
+        color: #111111 !important;
+        border: 1px solid #CCCCCC !important;
     }
     </style>
     """,
@@ -116,7 +140,7 @@ st.markdown(
     <div class="campaign-header">
         <h3>ALL PROGRESSIVES CONGRESS (APC) | LAGOS STATE</h3>
         <h1>PBAT–KOH 2027 CAMPAIGN COUNCIL</h1>
-        <p style="font-size: 1.1rem; opacity: 0.95; margin-bottom: 0;">
+        <p>
             <b>Contact & Mobilization Directorate</b> | Statewide Dual-Tier Performance Leaderboard
         </p>
     </div>
@@ -145,7 +169,7 @@ df_coordinators = fetch_sheet_data(SHEET_A_URL)
 df_activity = fetch_sheet_data(SHEET_B_URL)
 
 # ---------------------------------------------------------
-# 4. DATA PROCESSING & MEDAL SCORING ENGINE
+# 4. MULTI-SECTOR MEDAL SCORING ENGINE
 # ---------------------------------------------------------
 
 
@@ -163,7 +187,8 @@ coord_col_a = find_col(df_coordinators, ["coordinator", "name", "full name"])
 ward_col_b = find_col(df_activity, ["ward"])
 sub_col_b = find_col(df_activity, ["name", "sub-coordinator", "full name"])
 sector_col_b = find_col(
-    df_activity, ["sector", "occupation", "profile", "association", "ethnic"]
+    df_activity,
+    ["sub-occupational", "sector", "occupation", "profile", "association"],
 )
 feedback_col_b = find_col(
     df_activity, ["feedback", "concern", "needs", "major concerns"]
@@ -171,12 +196,12 @@ feedback_col_b = find_col(
 
 # --- PROCESS SUB-COORDINATOR LEADERBOARD (TIER 2) ---
 if not df_activity.empty:
-  sub_activity = (
-      df_activity.groupby([sub_col_b, ward_col_b])
+  # Group submissions by Sub-Coordinator and Sector to evaluate medals per sector event
+  sector_groups = (
+      df_activity.groupby([sub_col_b, ward_col_b, sector_col_b])
       .agg(
-          Total_Submissions=(sector_col_b, "count"),
-          Sectors_Covered=(sector_col_b, "nunique"),
-          Detailed_Feedbacks=(
+          Sector_Submissions=(sector_col_b, "count"),
+          Sector_Feedbacks=(
               feedback_col_b,
               lambda x: x.dropna().astype(str).str.len().gt(15).sum(),
           ),
@@ -184,35 +209,53 @@ if not df_activity.empty:
       .reset_index()
   )
 
-  # Calculate Medal Counts for Sub-Coordinators
-  sub_activity["Gold_Medals"] = np.where(
-      (sub_activity["Total_Submissions"] >= 3)
-      & (sub_activity["Sectors_Covered"] >= 2),
+  # Assign Sector-Level Medals:
+  # Gold = 3+ entries or strong feedback in that specific sector
+  # Silver = 2 entries in that sector
+  # Bronze = 1 entry in that sector
+  sector_groups["Gold"] = np.where(
+      (sector_groups["Sector_Submissions"] >= 3)
+      | (sector_groups["Sector_Feedbacks"] >= 2),
       1,
       0,
   )
-  sub_activity["Silver_Medals"] = np.where(
-      (sub_activity["Total_Submissions"] >= 2)
-      & (sub_activity["Gold_Medals"] == 0),
+  sector_groups["Silver"] = np.where(
+      (sector_groups["Sector_Submissions"] == 2) & (sector_groups["Gold"] == 0),
       1,
       0,
   )
-  sub_activity["Bronze_Medals"] = np.where(
-      (sub_activity["Total_Submissions"] >= 1)
-      & (sub_activity["Gold_Medals"] == 0)
-      & (sub_activity["Silver_Medals"] == 0),
+  sector_groups["Bronze"] = np.where(
+      (sector_groups["Sector_Submissions"] == 1)
+      & (sector_groups["Gold"] == 0)
+      & (sector_groups["Silver"] == 0),
       1,
       0,
   )
 
-  # Total Score Formula
+  # Roll up all sector medals to get cumulative tallies for each Sub-Coordinator
+  sub_activity = (
+      sector_groups.groupby([sub_col_b, ward_col_b])
+      .agg(
+          Gold_Medals=("Gold", "sum"),
+          Silver_Medals=("Silver", "sum"),
+          Bronze_Medals=("Bronze", "sum"),
+          Total_Submissions=("Sector_Submissions", "sum"),
+          Sectors_Covered=(sector_col_b, "nunique"),
+          Detailed_Feedbacks=("Sector_Feedbacks", "sum"),
+      )
+      .reset_index()
+  )
+
+  # Campaign Points Formula
   sub_activity["Campaign_Points"] = (
-      (sub_activity["Total_Submissions"] * 10)
+      (sub_activity["Gold_Medals"] * 50)
+      + (sub_activity["Silver_Medals"] * 25)
+      + (sub_activity["Bronze_Medals"] * 10)
+      + (sub_activity["Total_Submissions"] * 5)
       + (sub_activity["Sectors_Covered"] * 15)
-      + (sub_activity["Detailed_Feedbacks"] * 5)
   )
 
-  # Performance Sorting: Rank by Gold count, then Silver, then Bronze, then total points
+  # Performance Ranking: Most Golds -> Most Silvers -> Most Bronzes -> Total Points
   sub_activity = sub_activity.sort_values(
       by=[
           "Gold_Medals",
@@ -230,11 +273,12 @@ else:
           "Rank",
           sub_col_b,
           ward_col_b,
-          "Total_Submissions",
-          "Sectors_Covered",
           "Gold_Medals",
           "Silver_Medals",
           "Bronze_Medals",
+          "Total_Submissions",
+          "Sectors_Covered",
+          "Detailed_Feedbacks",
           "Campaign_Points",
       ]
   )
@@ -328,7 +372,7 @@ with m4:
   total_golds = (
       int(sub_activity["Gold_Medals"].sum()) if not sub_activity.empty else 0
   )
-  st.metric("🥇 Gold Medal Performers", total_golds)
+  st.metric("🥇 Total Sector Gold Medals", total_golds)
 
 st.markdown("---")
 
@@ -346,8 +390,8 @@ tab1, tab2 = st.tabs([
 with tab1:
   st.subheader("🥇 Ward Coordinators Statewide Medal Standings")
   st.caption(
-      "Ranked primarily by the total Gold Medals earned by their 15"
-      " Sub-Coordinators, followed by Silver and Bronze tallies."
+      "Ranked primarily by the total Gold Medals earned across all sectors by"
+      " their 15 Sub-Coordinators, followed by Silver and Bronze tallies."
   )
 
   if ward_leaderboard.empty:
@@ -375,7 +419,7 @@ with tab1:
                         <div class="podium-title">{row[coord_col_a]}</div>
                         <div class="podium-sub">Ward: {row[ward_col_a]}</div>
                         <div class="podium-score">{int(row['Cumulative_Ward_Score'])} Points</div>
-                        <div style="margin-top: 8px; font-size: 0.9rem; color: #333;">
+                        <div style="margin-top: 8px; font-size: 0.9rem;">
                             🥇 {int(row['Total_Ward_Gold'])} Gold | 🥈 {int(row['Total_Ward_Silver'])} Silver | 🥉 {int(row['Total_Ward_Bronze'])} Bronze
                         </div>
                     </div>
@@ -439,7 +483,8 @@ with tab2:
   st.subheader("⭐ Statewide Sub-Coordinators Master Leaderboard")
   st.caption(
       "Individual performance standings for all Sub-Coordinators across Lagos"
-      " State based on recruit volume, sector diversity, and feedback logging."
+      " State based on Sector Gold/Silver/Bronze medals accumulated across all"
+      " community sectors."
   )
 
   if sub_activity.empty:
@@ -464,8 +509,8 @@ with tab2:
                         <div class="podium-title">{srow[sub_col_b]}</div>
                         <div class="podium-sub">Ward: {srow[ward_col_b]}</div>
                         <div class="podium-score">{int(srow['Campaign_Points'])} Points</div>
-                        <div style="margin-top: 8px; font-size: 0.9rem; color: #333;">
-                            Recruits: {int(srow['Total_Submissions'])} | Sectors: {int(srow['Sectors_Covered'])}
+                        <div style="margin-top: 8px; font-size: 0.9rem;">
+                            🥇 {int(srow['Gold_Medals'])} Gold | 🥈 {int(srow['Silver_Medals'])} Silver | 🥉 {int(srow['Bronze_Medals'])} Bronze
                         </div>
                     </div>
                     """,
@@ -495,19 +540,19 @@ with tab2:
             sub_col_b: "Sub-Coordinator Name",
             ward_col_b: "Ward Name",
             "Gold_Medals": st.column_config.NumberColumn(
-                "🥇 Gold", format="%d"
+                "🥇 Sector Golds", format="%d"
             ),
             "Silver_Medals": st.column_config.NumberColumn(
-                "🥈 Silver", format="%d"
+                "🥈 Sector Silvers", format="%d"
             ),
             "Bronze_Medals": st.column_config.NumberColumn(
-                "🥉 Bronze", format="%d"
+                "🥉 Sector Bronzes", format="%d"
             ),
             "Total_Submissions": st.column_config.NumberColumn(
-                "Total Entries Logged", format="%d"
+                "Total Recruits Logged", format="%d"
             ),
             "Sectors_Covered": st.column_config.NumberColumn(
-                "Sectors Covered", format="%d"
+                "Sectors Engaged", format="%d"
             ),
             "Detailed_Feedbacks": st.column_config.NumberColumn(
                 "Quality Feedbacks Logged", format="%d"
