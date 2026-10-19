@@ -117,7 +117,7 @@ st.markdown(
         <h3>ALL PROGRESSIVES CONGRESS (APC) | LAGOS STATE</h3>
         <h1>PBAT–KOH 2027 CAMPAIGN COUNCIL</h1>
         <p style="font-size: 1.1rem; opacity: 0.95; margin-bottom: 0;">
-            <b>Contact & Mobilization Directorate</b> | Statewide Dual-Tier Leaderboard Dashboard
+            <b>Contact & Mobilization Directorate</b> | Statewide Dual-Tier Performance Leaderboard
         </p>
     </div>
     """,
@@ -149,7 +149,6 @@ df_activity = fetch_sheet_data(SHEET_B_URL)
 # ---------------------------------------------------------
 
 
-# Helper function to detect ward column
 def find_col(df, keywords):
   for col in df.columns:
     for kw in keywords:
@@ -175,10 +174,7 @@ if not df_activity.empty:
   sub_activity = (
       df_activity.groupby([sub_col_b, ward_col_b])
       .agg(
-          Total_Submissions=(
-              sector_col_b,
-              "count",
-          ),  # Each form entry counts as a recruit/engagement
+          Total_Submissions=(sector_col_b, "count"),
           Sectors_Covered=(sector_col_b, "nunique"),
           Detailed_Feedbacks=(
               feedback_col_b,
@@ -189,9 +185,6 @@ if not df_activity.empty:
   )
 
   # Calculate Medal Counts for Sub-Coordinators
-  # Gold = High volume (3+ submissions) AND high diversity (2+ sectors)
-  # Silver = Good engagement (2+ submissions)
-  # Bronze = At least 1 active submission
   sub_activity["Gold_Medals"] = np.where(
       (sub_activity["Total_Submissions"] >= 3)
       & (sub_activity["Sectors_Covered"] >= 2),
@@ -219,7 +212,7 @@ if not df_activity.empty:
       + (sub_activity["Detailed_Feedbacks"] * 5)
   )
 
-  # Olympic Sorting: Rank by Gold count, then Silver, then Bronze, then total points
+  # Performance Sorting: Rank by Gold count, then Silver, then Bronze, then total points
   sub_activity = sub_activity.sort_values(
       by=[
           "Gold_Medals",
@@ -253,7 +246,6 @@ if not df_coordinators.empty or not sub_activity.empty:
   else:
     ward_df = pd.DataFrame({ward_col_a: [], coord_col_a: []})
 
-  # Link Sub-Coordinator performance up to Ward Coordinators
   if not sub_activity.empty:
     ward_summary = (
         sub_activity.groupby(ward_col_b)
@@ -284,7 +276,6 @@ if not df_coordinators.empty or not sub_activity.empty:
     ward_leaderboard["Total_Ward_Bronze"] = 0
     ward_leaderboard["Cumulative_Ward_Score"] = 0
 
-  # Fill missing text and zero numeric columns
   ward_leaderboard[ward_col_a] = ward_leaderboard[ward_col_a].fillna(
       ward_leaderboard[ward_col_b]
   )
@@ -293,12 +284,10 @@ if not df_coordinators.empty or not sub_activity.empty:
   )
   ward_leaderboard.fillna(0, inplace=True)
 
-  # Team Target Mobilization Status
   ward_leaderboard["Team Mobilization (%)"] = (
       (ward_leaderboard["Active_SubCoordinators"] / 15) * 100
   ).clip(upper=100)
 
-  # Olympic Sorting for Ward Leaderboard: Most Ward Gold Medals first
   ward_leaderboard = ward_leaderboard.sort_values(
       by=[
           "Total_Ward_Gold",
@@ -355,7 +344,7 @@ tab1, tab2 = st.tabs([
 # TAB 1: WARD COORDINATORS LEADERBOARD
 # =========================================================
 with tab1:
-  st.subheader("🥇 Ward Coordinators Olympic Medal Standings")
+  st.subheader("🥇 Ward Coordinators Statewide Medal Standings")
   st.caption(
       "Ranked primarily by the total Gold Medals earned by their 15"
       " Sub-Coordinators, followed by Silver and Bronze tallies."
@@ -367,14 +356,13 @@ with tab1:
         " Sub-Coordinators."
     )
   else:
-    # --- Top 3 Olympic Podium ---
     st.markdown("### 🏆 Top 3 Performing Ward Coordinators")
     p1, p2, p3 = st.columns(3)
 
     for col, idx, medal_emoji, border_class in zip(
         [p1, p2, p3],
         [0, 1, 2],
-        ["🥇 1st Place (Gold)", "🥈 2nd Place (Silver)", "🥉 3rd Place (Bronze)"],
+        ["🥇 1st Rank (Gold)", "🥈 2nd Rank (Silver)", "🥉 3rd Rank (Bronze)"],
         ["podium-gold", "podium-silver", "podium-bronze"],
     ):
       with col:
@@ -397,7 +385,6 @@ with tab1:
 
     st.markdown("---")
 
-    # Search / Filter Bar
     search_ward = st.text_input(
         "🔍 Search Ward Coordinator or Ward Name:", ""
     )
@@ -458,14 +445,13 @@ with tab2:
   if sub_activity.empty:
     st.info("⏳ No field responses submitted by sub-coordinators yet.")
   else:
-    # --- Top 3 Sub-Coordinators Podium ---
     st.markdown("### 🏆 Top 3 Field Sub-Coordinators")
     s1, s2, s3 = st.columns(3)
 
     for col, idx, medal_emoji, border_class in zip(
         [s1, s2, s3],
         [0, 1, 2],
-        ["🥇 Gold Champion", "🥈 Silver Champion", "🥉 Bronze Champion"],
+        ["🥇 Gold Rank", "🥈 Silver Rank", "🥉 Bronze Rank"],
         ["podium-gold", "podium-silver", "podium-bronze"],
     ):
       with col:
@@ -488,7 +474,6 @@ with tab2:
 
     st.markdown("---")
 
-    # Search / Filter Bar
     search_sub = st.text_input(
         "🔍 Search Sub-Coordinator Name or Ward:", "", key="sub_search"
     )
